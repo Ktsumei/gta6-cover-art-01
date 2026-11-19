@@ -3,21 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
-<link rel="stylesheet" href="./style.css">
+<title>Cover Coast — GTA-style cover maker</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">CC</span> Cover Coast <span class="brand-sub">GTA-style cover maker</span></div>
+  <div class="top-actions">
+    <div class="size-group" role="group" aria-label="Export size">
+      <button type="button" class="size-btn active" data-size="1080x1080">1080 × 1080</button>
+      <button type="button" class="size-btn" data-size="1080x1350">1080 × 1350</button>
+      <button type="button" class="size-btn" data-size="1920x1080">1920 × 1080</button>
+    </div>
+    <button type="button" id="exportBtn" class="export-btn">Export PNG</button>
+  </div>
+</header>
+<main class="workspace">
+  <section class="stage-col">
+    <div id="stageWrap" class="stage-wrap">
+      <canvas id="stage" width="1080" height="1080"></canvas>
+    </div>
+    <p class="hint">Click a panel to select it · drag the photo to move it · drop your photos onto the cover</p>
   </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
+  <aside class="sidebar">
+    <section class="panel-block">
+      <h2>Photos</h2>
+      <div id="photoTray" class="tray"></div>
+      <div class="row">
+        <label class="file-btn">Add photos
+          <input type="file" id="addPhotos" accept="image/*" multiple hidden>
+        </label>
+        <button type="button" id="fillAll" class="ghost-btn">Fill all panels</button>
+      </div>
+      <p class="note">Photos stay on your machine — nothing is uploaded.</p>
+    </section>
+    <section class="panel-block">
+      <h2>Layout</h2>
+      <div class="btn-row">
+        <button type="button" class="layout-btn active" data-layout="hero">Hero + two</button>
+        <button type="button" class="layout-btn" data-layout="trio">Three columns</button>
+        <button type="button" class="layout-btn" data-layout="duo">Two panels</button>
+        <button type="button" class="layout-btn" data-layout="solo">Single hero</button>
+      </div>
+    </section>
+    <section class="panel-block">
+      <h2>Selected panel · <span id="selectedPanel">Panel 1 of 3</span></h2>
+      <label class="slider-label">Zoom
+        <input type="range" id="zoomRange" min="80" max="250" value="110">
+      </label>
+    </section>
+    <section class="panel-block">
+      <h2>Colour grade</h2>
+      <div class="btn-row">
+        <button type="button" class="grade-btn active" data-grade="sunset">Vice sunset</button>
+        <button type="button" class="grade-btn" data-grade="neon">Neon night</button>
+        <button type="button" class="grade-btn" data-grade="clean">Clean</button>
+      </div>
+      <label class="slider-label">Grade strength
+        <input type="range" id="gradeStrength" min="0" max="100" value="70">
+      </label>
+    </section>
+    <section class="panel-block">
+      <h2>Caption</h2>
+      <input id="captionInput" type="text" value="Sunset Heist" maxlength="40" aria-label="Caption">
+      <input id="subtitleInput" type="text" value="a palm city story" maxlength="60" aria-label="Subtitle">
+      <label class="slider-label">Caption size
+        <input type="range" id="captionScale" min="60" max="150" value="100">
+      </label>
+    </section>
+  </aside>
 </main>
-<script type="module" src="./src/main.js"></script>
+<div id="toast" class="toast" role="status"></div>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>

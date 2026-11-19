@@ -1,51 +1,21 @@
-// Wires the page: pick a photo, type a caption, export the square cover as a PNG. A `?shot=` query sets up a fixed
-// scene for a screenshot instead (./shots.js).
-import { drawCover } from './cover.js';
-import { runShot } from './shots.js';
+// Boot the app: build the editor, load the samples, apply any ?shot=
+// scene, then paint. A failure to load the display fonts never blocks the
+// boot — the editor falls back to system typefaces and still works.
 
-const canvas = document.getElementById('cover');
-const caption = document.getElementById('caption');
-const status = document.getElementById('status');
-let photo = null;
+import { CoverEditor } from './editor.js';
+import { applyShotParams, markShotReady } from './shots.js';
 
-function redraw() {
-  drawCover(canvas, photo, caption.value);
-}
+const editor = new CoverEditor(document.body);
+window.coverEditor = editor;
 
-/** Loads an image from a URL, resolving to the image once it can be drawn. */
-export function loadImage(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = url;
-  });
-}
-
-document.getElementById('photo').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  photo = await loadImage(URL.createObjectURL(file));
-  redraw();
+editor.boot().then(() => {
+  applyShotParams(editor);
+  return markShotReady(editor);
+}).catch((error) => {
+  console.error('Cover Coast failed to start:', error);
+  const stage = document.querySelector('#stageWrap');
+  if (stage) {
+    stage.insertAdjacentHTML('beforeend', '<p class="boot-error">The cover maker could not start. Reload the page to try again.</p>');
+  }
+  window.__shotReady = true;
 });
-caption.addEventListener('input', redraw);
-document.getElementById('export').addEventListener('click', () => {
-  canvas.toBlob((blob) => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'cover-1080x1080.png';
-    a.click();
-    status.textContent = 'Saved cover-1080x1080.png';
-  }, 'image/png');
-});
-
-const shot = new URLSearchParams(location.search).get('shot');
-if (shot) {
-  runShot(shot, new URLSearchParams(location.search), async (sample, text) => {
-    photo = await loadImage(sample);
-    caption.value = text;
-    redraw();
-  });
-} else {
-  redraw();
-}
